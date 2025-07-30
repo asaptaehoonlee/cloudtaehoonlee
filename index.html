@@ -81,15 +81,15 @@
     const icons = document.querySelectorAll('.draggable-icon');
     const dropZones = document.querySelectorAll('.drop-zone');
     let draggedElement = null;
-    let isDropped = false;
 
-    // ✅ 요청 2: 페이지 전체에서 드래그 시 금지 표시가 뜨지 않도록 설정
-    document.addEventListener('dragover', (e) => { e.preventDefault(); });
+    // ✅ 금지 표시 제거 (전체 문서에 dragover 이벤트 방지)
+    document.addEventListener('dragover', function(event) {
+        event.preventDefault();
+    });
 
     icons.forEach(icon => {
         icon.addEventListener('dragstart', (e) => {
             draggedElement = e.target;
-            isDropped = false; 
             setTimeout(() => { e.target.classList.add('dragging'); }, 0);
         });
         icon.addEventListener('dragend', (e) => {
@@ -98,33 +98,34 @@
     });
 
     dropZones.forEach(zone => {
-        // ✅ 요청 3: 아이콘이 올바른지 여부와 관계없이 드롭 지점 이미지 변경
+        // ✅ 잘못된 곳에 올려도 이미지 변경 (dragenter)
         zone.addEventListener('dragenter', (e) => {
-            e.preventDefault();
-            // 조건문 제거: 어떤 아이콘을 올리든 hover 이미지로 변경
             const hoverSrc = e.target.dataset.hoverSrc;
             if (hoverSrc) {
                 e.target.style.backgroundImage = `url('${hoverSrc}')`;
             }
         });
 
+        // ✅ 영역 밖으로 나가면 원래 이미지로 복구 (dragleave)
         zone.addEventListener('dragleave', (e) => {
-            if (!isDropped) {
-                const originalSrc = e.target.dataset.originalSrc;
-                if (originalSrc) { e.target.style.backgroundImage = `url('${originalSrc}')`; }
+            const originalSrc = e.target.dataset.originalSrc;
+            if (originalSrc) {
+                e.target.style.backgroundImage = `url('${originalSrc}')`;
             }
         });
 
         zone.addEventListener('drop', (e) => {
-            e.preventDefault();
+            e.preventDefault(); // 드롭 이벤트 기본 동작 방지
             if (!draggedElement) return;
+
             const targetZoneId = draggedElement.dataset.target;
             const currentZoneId = e.target.id;
 
+            // 올바른 위치에 드롭했는지 확인
             if (targetZoneId === currentZoneId) {
-                isDropped = true;
                 draggedElement.style.display = 'none';
 
+                // 성공 이미지 생성
                 const successSrc = draggedElement.dataset.successSrc;
                 const originalTop = draggedElement.dataset.originalTop;
                 const originalRight = draggedElement.dataset.originalRight;
@@ -138,7 +139,7 @@
                 }
             }
             
-            // ✅ 요청 1: 드롭 성공/실패 여부와 관계없이 드롭존 이미지를 원래대로 복구
+            // ✅ 드롭 완료 시 원래 이미지로 복구
             const originalSrc = e.target.dataset.originalSrc;
             if (originalSrc) {
                 e.target.style.backgroundImage = `url('${originalSrc}')`;
