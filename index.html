@@ -31,12 +31,23 @@
             transform: scale(1.1);
         }
         
-        /* 드롭 존 공통 스타일 */
-        .drop-zone {
-            width: 120px; height: 120px;
-            border-radius: 20px;
-            object-fit: cover;
-        }
+/* 드롭 존 공통 스타일 */
+.drop-zone {
+    width: 120px; height: 120px;
+    border-radius: 20px;
+    /* object-fit은 더 이상 필요 없으므로 삭제하고 아래 3줄을 추가합니다. */
+    background-size: cover; /* 이미지가 div에 꽉 차도록 설정 */
+    background-position: center; /* 이미지를 중앙에 위치 */
+    background-repeat: no-repeat; /* 이미지가 반복되지 않도록 설정 */
+}
+
+/* 각 드롭 존의 초기 이미지 설정 */
+#zone1 {
+    background-image: url('https://www.thelabyrinth.co.kr/labyrinth/upload/quest/5011/1753862820632/cloudelement9.png');
+}
+#zone2 {
+    background-image: url('https://www.thelabyrinth.co.kr/labyrinth/upload/quest/5011/1753862820632/cloudelement10.png');
+}
         
         /* ▼▼▼ 각 요소의 위치를 개별적으로 지정 ▼▼▼ */
         /* 아이콘 위치 */
@@ -69,13 +80,13 @@
 
     <img src="https://www.thelabyrinth.co.kr/labyrinth/upload/quest/5011/1753848695939/cloudelement6.png" id="icon7" class="draggable-icon" draggable="true" data-target="zone2" alt="Icon 7">
     
-    <img src="https://www.thelabyrinth.co.kr/labyrinth/upload/quest/5011/1753862820632/cloudelement9.png" class="drop-zone" id="zone1" alt="Drop Zone 1">
+<div class="drop-zone" id="zone1"
+     data-original-src="https://www.thelabyrinth.co.kr/labyrinth/upload/quest/5011/1753862820632/cloudelement9.png"
+     data-hover-src="https://www.thelabyrinth.co.kr/labyrinth/upload/quest/5011/1753878297406/cloudelement9-1.png"></div>
 
-    <img src="https://www.thelabyrinth.co.kr/labyrinth/upload/quest/5011/1753862820632/cloudelement10.png" class="drop-zone" id="zone2" alt="Drop Zone 2">
-
-    <img src="https://www.thelabyrinth.co.kr/labyrinth/upload/quest/5011/1753862820632/cloudelement9.png" class="drop-zone" id="zone1" alt="Drop Zone 1" data-hover-src="https://www.thelabyrinth.co.kr/labyrinth/upload/quest/5011/1753878297406/cloudelement9-1.png">
-
-    <img src="https://www.thelabyrinth.co.kr/labyrinth/upload/quest/5011/1753862820632/cloudelement10.png" class="drop-zone" id="zone2" alt="Drop Zone 2" data-hover-src="https://www.thelabyrinth.co.kr/labyrinth/upload/quest/5011/1753878297406/cloudelement10-1.png">
+<div class="drop-zone" id="zone2"
+     data-original-src="https://www.thelabyrinth.co.kr/labyrinth/upload/quest/5011/1753862820632/cloudelement10.png"
+     data-hover-src="https://www.thelabyrinth.co.kr/labyrinth/upload/quest/5011/1753878297406/cloudelement10-1.png"></div>
     
 <script>
     const icons = document.querySelectorAll('.draggable-icon');
@@ -93,53 +104,40 @@
     });
 
     dropZones.forEach(zone => {
-        // ✅ JS만으로 해결하기 위해 각 존의 원본 이미지 경로를 미리 저장합니다.
-        //  जोन이 DIV라면 background-image에서, IMG라면 src에서 가져옵니다.
-        const originalSrc = (zone.tagName === 'IMG') ? zone.src : getComputedStyle(zone).backgroundImage.slice(5, -2);
-
         zone.addEventListener('dragover', (e) => {
             e.preventDefault();
         });
 
+        // 드래그 아이콘이 드롭 존에 들어왔을 때
         zone.addEventListener('dragenter', (e) => {
-            const target = e.target;
-            const hoverSrc = target.dataset.hoverSrc;
-
+            const hoverSrc = e.target.dataset.hoverSrc;
             if (hoverSrc) {
-                // ✅ 태그 종류를 확인하고 그에 맞게 이미지를 변경합니다.
-                if (target.tagName === 'IMG') {
-                    target.src = hoverSrc;
-                } else {
-                    target.style.backgroundImage = `url('${hoverSrc}')`;
-                }
+                // ✅ src 대신 backgroundImage를 변경합니다.
+                e.target.style.backgroundImage = `url('${hoverSrc}')`;
             }
         });
 
+        // 드래그 아이콘이 드롭 존에서 나갔을 때
         zone.addEventListener('dragleave', (e) => {
-            const target = e.target;
-            // ✅ 태그 종류에 따라 원래 이미지로 복구합니다.
-            if (target.tagName === 'IMG') {
-                target.src = originalSrc;
-            } else {
-                target.style.backgroundImage = `url('${originalSrc}')`;
+            const originalSrc = e.target.dataset.originalSrc;
+            if (originalSrc) {
+                // ✅ src 대신 backgroundImage를 원래대로 복구합니다.
+                e.target.style.backgroundImage = `url('${originalSrc}')`;
             }
         });
         
         zone.addEventListener('drop', (e) => {
             e.preventDefault();
-            const target = e.target;
-
-            // ✅ 드롭 시에도 원래 이미지로 복구합니다.
-            if (target.tagName === 'IMG') {
-                target.src = originalSrc;
-            } else {
-                target.style.backgroundImage = `url('${originalSrc}')`;
+            const originalSrc = e.target.dataset.originalSrc;
+            if (originalSrc) {
+                // ✅ 드롭 시에도 backgroundImage를 원래대로 복구합니다.
+                e.target.style.backgroundImage = `url('${originalSrc}')`;
             }
 
             if (!draggedElement) return;
             
             const targetZoneId = draggedElement.dataset.target;
-            const currentZoneId = target.id;
+            const currentZoneId = e.target.id;
 
             if (targetZoneId === currentZoneId) {
                 draggedElement.style.display = 'none';
