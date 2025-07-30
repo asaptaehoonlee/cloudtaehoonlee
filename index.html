@@ -87,46 +87,59 @@
             draggedElement = e.target;
             e.target.classList.add('dragging');
         });
-
         icon.addEventListener('dragend', (e) => {
             e.target.classList.remove('dragging');
         });
     });
 
     dropZones.forEach(zone => {
-        const originalSrc = zone.src; // 각 드롭존의 원래 이미지 소스를 저장
+        // ✅ JS만으로 해결하기 위해 각 존의 원본 이미지 경로를 미리 저장합니다.
+        //  जोन이 DIV라면 background-image에서, IMG라면 src에서 가져옵니다.
+        const originalSrc = (zone.tagName === 'IMG') ? zone.src : getComputedStyle(zone).backgroundImage.slice(5, -2);
 
         zone.addEventListener('dragover', (e) => {
             e.preventDefault();
         });
 
-        // ▼▼▼ 드롭 존 호버 시 이미지 변경을 위한 코드 ▼▼▼
-
-        // 드래그 아이콘이 드롭 존에 들어왔을 때
         zone.addEventListener('dragenter', (e) => {
-            const hoverSrc = e.target.dataset.hoverSrc;
-            if (hoverSrc) { // data-hover-src 속성이 있다면
-                e.target.src = hoverSrc; // 이미지를 교체
+            const target = e.target;
+            const hoverSrc = target.dataset.hoverSrc;
+
+            if (hoverSrc) {
+                // ✅ 태그 종류를 확인하고 그에 맞게 이미지를 변경합니다.
+                if (target.tagName === 'IMG') {
+                    target.src = hoverSrc;
+                } else {
+                    target.style.backgroundImage = `url('${hoverSrc}')`;
+                }
             }
         });
 
-        // 드래그 아이콘이 드롭 존에서 나갔을 때
         zone.addEventListener('dragleave', (e) => {
-            e.target.src = originalSrc; // 원래 이미지로 복구
+            const target = e.target;
+            // ✅ 태그 종류에 따라 원래 이미지로 복구합니다.
+            if (target.tagName === 'IMG') {
+                target.src = originalSrc;
+            } else {
+                target.style.backgroundImage = `url('${originalSrc}')`;
+            }
         });
-
-        // ▲▲▲ 여기까지가 추가된 부분입니다 ▲▲▲
         
         zone.addEventListener('drop', (e) => {
-            e.preventDefault(); // drop 이벤트에 대한 기본 동작 방지
-            
-            // 원래 이미지로 즉시 복구
-            e.target.src = originalSrc;
+            e.preventDefault();
+            const target = e.target;
+
+            // ✅ 드롭 시에도 원래 이미지로 복구합니다.
+            if (target.tagName === 'IMG') {
+                target.src = originalSrc;
+            } else {
+                target.style.backgroundImage = `url('${originalSrc}')`;
+            }
 
             if (!draggedElement) return;
             
             const targetZoneId = draggedElement.dataset.target;
-            const currentZoneId = e.target.id;
+            const currentZoneId = target.id;
 
             if (targetZoneId === currentZoneId) {
                 draggedElement.style.display = 'none';
