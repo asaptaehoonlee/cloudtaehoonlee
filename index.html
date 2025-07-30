@@ -88,13 +88,19 @@
                 e.target.classList.remove('dragging');
             });
         });
-        dropZones.forEach(zone => {
-            zone.addEventListener('dragover', (e) => {
-                if (!draggedElement) return;
-                const targetZoneId = draggedElement.dataset.target;
-                const currentZoneId = e.target.id;
-                if (targetZoneId === currentZoneId) {
-                    e.preventDefault();
+         dropZones.forEach(zone => {
+             zone.addEventListener('dragover', (e) => {
+        // 조건 없이 preventDefault를 호출하여 모든 드롭 존 위에서 금지 표시가 뜨지 않도록 함
+        e.preventDefault();
+    });
+
+    // drop 이벤트는 그대로 둬서, 올바른 위치에 드롭했을 때만 아이콘이 사라지게 함
+    zone.addEventListener('drop', (e) => {
+        if (!draggedElement) return;
+        const targetZoneId = draggedElement.dataset.target;
+        const currentZoneId = e.target.id;
+        if (targetZoneId === currentZoneId) {
+            draggedElement.style.display = 'none';
                 }
             });
             zone.addEventListener('drop', (e) => {
