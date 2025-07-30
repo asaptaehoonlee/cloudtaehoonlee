@@ -82,6 +82,8 @@
     const dropZones = document.querySelectorAll('.drop-zone');
     let draggedElement = null;
     let isDropped = false; // ✅ 드롭 성공 여부를 추적하는 플래그
+    document.addEventListener('dragover', (e) => { e.preventDefault(); });
+
 
     icons.forEach(icon => {
         icon.addEventListener('dragstart', (e) => {
@@ -133,9 +135,10 @@
                     document.body.appendChild(successImage);
                 }
 
-                const hoverSrc = e.target.dataset.hoverSrc;
-                if (hoverSrc) { e.target.style.backgroundImage = `url('${hoverSrc}')`; }
-            } else {
+               const originalSrc = e.target.dataset.originalSrc;
+    if (originalSrc) { e.target.style.backgroundImage = `url('${originalSrc}')`; }
+}
+ else {
                 // 실패 시 원래 이미지로 복구
                 const originalSrc = e.target.dataset.originalSrc;
                 if (originalSrc) { e.target.style.backgroundImage = `url('${originalSrc}')`; }
