@@ -73,46 +73,48 @@
 
     <img src="https://www.thelabyrinth.co.kr/labyrinth/upload/quest/5011/1753862820632/cloudelement10.png" class="drop-zone" id="zone2" alt="Drop Zone 2">
 
-    <script>
-        // 자바스크립트는 수정할 필요가 없습니다.
-        const icons = document.querySelectorAll('.draggable-icon');
-        const dropZones = document.querySelectorAll('.drop-zone');
-        let draggedElement = null;
+ <script>
+    const icons = document.querySelectorAll('.draggable-icon');
+    const dropZones = document.querySelectorAll('.drop-zone');
+    let draggedElement = null;
 
-        icons.forEach(icon => {
-            icon.addEventListener('dragstart', (e) => {
-                draggedElement = e.target;
-                e.target.classList.add('dragging');
-            });
-            icon.addEventListener('dragend', (e) => {
-                e.target.classList.remove('dragging');
-            });
+    icons.forEach(icon => {
+        icon.addEventListener('dragstart', (e) => {
+            draggedElement = e.target;
+            e.target.classList.add('dragging');
         });
-         dropZones.forEach(zone => {
-             zone.addEventListener('dragover', (e) => {
-        // 조건 없이 preventDefault를 호출하여 모든 드롭 존 위에서 금지 표시가 뜨지 않도록 함
-        e.preventDefault();
+
+        icon.addEventListener('dragend', (e) => {
+            e.target.classList.remove('dragging');
+        });
     });
 
-    // drop 이벤트는 그대로 둬서, 올바른 위치에 드롭했을 때만 아이콘이 사라지게 함
-    zone.addEventListener('drop', (e) => {
-        if (!draggedElement) return;
-        const targetZoneId = draggedElement.dataset.target;
-        const currentZoneId = e.target.id;
-        if (targetZoneId === currentZoneId) {
-            draggedElement.style.display = 'none';
-                }
-            });
-            zone.addEventListener('drop', (e) => {
-                if (!draggedElement) return;
-                const targetZoneId = draggedElement.dataset.target;
-                const currentZoneId = e.target.id;
-                if (targetZoneId === currentZoneId) {
-                    draggedElement.style.display = 'none';
-                }
-            });
+    dropZones.forEach(zone => {
+        // 드롭 존 위에서 금지 표시가 뜨지 않도록 함
+        zone.addEventListener('dragover', (e) => {
+            e.preventDefault();
         });
-    </script>
+
+        // 🔴 중복된 'drop' 이벤트 리스너를 하나로 정리했습니다.
+        // 올바른 위치에 드롭했을 때만 아이콘이 사라지게 함
+        zone.addEventListener('drop', (e) => {
+            if (!draggedElement) return;
+            
+            const targetZoneId = draggedElement.dataset.target;
+            const currentZoneId = e.target.id;
+
+            if (targetZoneId === currentZoneId) {
+                draggedElement.style.display = 'none';
+            }
+        });
+    });
+
+    // ✅ 이 부분이 페이지 전체의 금지 표시를 없애기 위해 추가된 코드입니다.
+    // 페이지 배경 등 어느 곳을 드래그해도 금지 표시가 뜨지 않습니다.
+    document.addEventListener('dragover', function(e) {
+        e.preventDefault();
+    });
+</script>
 
 </body>
 </html>
