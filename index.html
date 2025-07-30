@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Custom Position Drag and Drop</title>
+    <style>
+        body, html {
+            margin: 0; padding: 0; width: 100%; height: 100%;
+            background-color: transparent;
+            overflow: hidden;
+            font-family: sans-serif;
+        }
+
+        /* 공통 스타일: 모든 아이콘과 드롭존을 절대 위치로 설정 */
+        .draggable-icon, .drop-zone {
+            position: absolute; /* 모든 요소를 개별적으로 배치하기 위해 absolute 사용 */
+            transition: transform 0.2s, opacity 0.2s;
+        }
+
+        /* 드래그할 아이콘 공통 스타일 */
+        .draggable-icon {
+            width: 100px; height: 100px;
+            cursor: grab;
+            border-radius: 10px;
+            z-index: 1000; /* 드래그 시 다른 요소 위에 오도록 설정 */
+        }
+        .draggable-icon.dragging {
+            cursor: grabbing;
+            opacity: 0.5;
+            transform: scale(1.1);
+        }
+        
+        /* 드롭 존 공통 스타일 */
+        .drop-zone {
+            width: 200px; height: 200px;
+            border-radius: 20px;
+            object-fit: cover;
+        }
+        
+        /* ▼▼▼ 각 요소의 위치를 개별적으로 지정 ▼▼▼ */
+        /* 아이콘 위치 */
+        #icon1 { top: 16%; right: 79%; }
+        #icon2 { top: 16%; right: 67%; }
+        #icon3 { top: 16%; right: 55%; }
+        #icon4 { top: 16%; right: 43%; }
+        #icon5 { top: 16%; right: 31%; }
+        #icon6 { top: 16%; right: 19%; }
+        #icon7 { top: 16%; right: 7%; }
+
+        /* 드롭 존 위치 */
+        #zone1 { bottom: 10%; left: 25%; }
+        #zone2 { bottom: 10%; right: 25%; }
+    </style>
+</head>
+<body>
+
+    <img src="https://www.thelabyrinth.co.kr/labyrinth/upload/quest/5011/1753848695939/cloudelement1.png" id="icon1" class="draggable-icon" draggable="true" data-target="zone2" alt="Icon 1">
+
+    <img src="https://www.thelabyrinth.co.kr/labyrinth/upload/quest/5011/1753848695939/cloudelement2.png" id="icon2" class="draggable-icon" draggable="true" data-target="zone1" alt="Icon 2">
+
+    <img src="https://www.thelabyrinth.co.kr/labyrinth/upload/quest/5011/1753848695939/cloudelement3.png" id="icon3" class="draggable-icon" draggable="true" data-target="zone2" alt="Icon 3">
+
+    <img src="https://www.thelabyrinth.co.kr/labyrinth/upload/quest/5011/1753848695939/cloudelement4.png" id="icon4" class="draggable-icon" draggable="true" data-target="zone2" alt="Icon 4">
+
+    <img src="https://www.thelabyrinth.co.kr/labyrinth/upload/quest/5011/1753848695939/cloudelement5.png" id="icon5" class="draggable-icon" draggable="true" data-target="zone1" alt="Icon 5">
+
+    <img src="https://www.thelabyrinth.co.kr/labyrinth/upload/quest/5011/1753848695939/cloudelement6.png" id="icon6" class="draggable-icon" draggable="true" data-target="zone2" alt="Icon 6">
+
+    <img src="https://www.thelabyrinth.co.kr/labyrinth/upload/quest/5011/1753848695939/cloudelement7.png" id="icon7" class="draggable-icon" draggable="true" data-target="zone1" alt="Icon 7">
+    
+    <img src="https://www.thelabyrinth.co.kr/labyrinth/upload/quest/5011/1753862820632/cloudelement9.png" class="drop-zone" id="zone1" alt="Drop Zone 1">
+
+    <img src="https://www.thelabyrinth.co.kr/labyrinth/upload/quest/5011/1753862820632/cloudelement10.png" class="drop-zone" id="zone2" alt="Drop Zone 2">
+
+    <script>
+        // 자바스크립트는 수정할 필요가 없습니다.
+        const icons = document.querySelectorAll('.draggable-icon');
+        const dropZones = document.querySelectorAll('.drop-zone');
+        let draggedElement = null;
+
+        icons.forEach(icon => {
+            icon.addEventListener('dragstart', (e) => {
+                draggedElement = e.target;
+                e.target.classList.add('dragging');
+            });
+            icon.addEventListener('dragend', (e) => {
+                e.target.classList.remove('dragging');
+            });
+        });
+        dropZones.forEach(zone => {
+            zone.addEventListener('dragover', (e) => {
+                if (!draggedElement) return;
+                const targetZoneId = draggedElement.dataset.target;
+                const currentZoneId = e.target.id;
+                if (targetZoneId === currentZoneId) {
+                    e.preventDefault();
+                }
+            });
+            zone.addEventListener('drop', (e) => {
+                if (!draggedElement) return;
+                const targetZoneId = draggedElement.dataset.target;
+                const currentZoneId = e.target.id;
+                if (targetZoneId === currentZoneId) {
+                    draggedElement.style.display = 'none';
+                }
+            });
+        });
+    </script>
+
+</body>
+</html>
