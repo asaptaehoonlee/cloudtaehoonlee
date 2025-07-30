@@ -81,14 +81,15 @@
     const icons = document.querySelectorAll('.draggable-icon');
     const dropZones = document.querySelectorAll('.drop-zone');
     let draggedElement = null;
-    let isDropped = false; // ✅ 드롭 성공 여부를 추적하는 플래그
-    document.addEventListener('dragover', (e) => { e.preventDefault(); });
+    let isDropped = false;
 
+    // ✅ 요청 2: 페이지 전체에서 드래그 시 금지 표시가 뜨지 않도록 설정
+    document.addEventListener('dragover', (e) => { e.preventDefault(); });
 
     icons.forEach(icon => {
         icon.addEventListener('dragstart', (e) => {
             draggedElement = e.target;
-            isDropped = false; // ✅ 드래그 시작 시 플래그 초기화
+            isDropped = false; 
             setTimeout(() => { e.target.classList.add('dragging'); }, 0);
         });
         icon.addEventListener('dragend', (e) => {
@@ -97,21 +98,23 @@
     });
 
     dropZones.forEach(zone => {
-        zone.addEventListener('dragover', (e) => { e.preventDefault(); });
+        // ✅ 요청 3: 아이콘이 올바른지 여부와 관계없이 드롭 지점 이미지 변경
         zone.addEventListener('dragenter', (e) => {
             e.preventDefault();
-            if (draggedElement && draggedElement.dataset.target === e.target.id) {
-                const hoverSrc = e.target.dataset.hoverSrc;
-                if (hoverSrc) { e.target.style.backgroundImage = `url('${hoverSrc}')`; }
+            // 조건문 제거: 어떤 아이콘을 올리든 hover 이미지로 변경
+            const hoverSrc = e.target.dataset.hoverSrc;
+            if (hoverSrc) {
+                e.target.style.backgroundImage = `url('${hoverSrc}')`;
             }
         });
+
         zone.addEventListener('dragleave', (e) => {
-            // ✅ 드롭이 성공하지 않았을 때만 원래 이미지로 복구
             if (!isDropped) {
                 const originalSrc = e.target.dataset.originalSrc;
                 if (originalSrc) { e.target.style.backgroundImage = `url('${originalSrc}')`; }
             }
         });
+
         zone.addEventListener('drop', (e) => {
             e.preventDefault();
             if (!draggedElement) return;
@@ -119,10 +122,9 @@
             const currentZoneId = e.target.id;
 
             if (targetZoneId === currentZoneId) {
-                isDropped = true; // ✅ 드롭 성공! 플래그를 true로 설정
+                isDropped = true;
                 draggedElement.style.display = 'none';
 
-                // 성공 이미지 생성
                 const successSrc = draggedElement.dataset.successSrc;
                 const originalTop = draggedElement.dataset.originalTop;
                 const originalRight = draggedElement.dataset.originalRight;
@@ -134,15 +136,14 @@
                     successImage.style.right = originalRight;
                     document.body.appendChild(successImage);
                 }
-
-               const originalSrc = e.target.dataset.originalSrc;
-    if (originalSrc) { e.target.style.backgroundImage = `url('${originalSrc}')`; }
-}
- else {
-                // 실패 시 원래 이미지로 복구
-                const originalSrc = e.target.dataset.originalSrc;
-                if (originalSrc) { e.target.style.backgroundImage = `url('${originalSrc}')`; }
             }
+            
+            // ✅ 요청 1: 드롭 성공/실패 여부와 관계없이 드롭존 이미지를 원래대로 복구
+            const originalSrc = e.target.dataset.originalSrc;
+            if (originalSrc) {
+                e.target.style.backgroundImage = `url('${originalSrc}')`;
+            }
+            
             draggedElement = null;
         });
     });
